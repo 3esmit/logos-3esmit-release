@@ -1,6 +1,37 @@
-# logos-modules-release-base
+# Logos 3esmit Release Catalog
 
-A **fork-me** starting point for running your own Logos module catalog.
+Release catalog for the maintained Logos modules used with Logos Inspector.
+
+It publishes these source forks:
+
+- `blockchain_module` from `3esmit/logos-blockchain-module`
+- `storage_module` from `3esmit/logos-storage-module`
+- `delivery_module` from `3esmit/logos-delivery-module`
+
+These are the direct-host protocol modules used by Logos Inspector. Install
+the Inspector core and UI packages together; once its package dependencies are
+available, the package manager can resolve them from this catalog.
+
+Add this catalog to a Logos client with:
+
+```
+https://raw.githubusercontent.com/3esmit/logos-3esmit-release/main/logos-repo.json
+```
+
+This repository derives from the Logos module release template. The remaining
+sections document the release workflow and catalog maintenance.
+
+## Release channel and changelog
+
+The catalog is currently **alpha**. Its module artifacts retain the semantic
+versions declared by their source repositories; the channel describes the
+catalog's integration maturity, not a reason to rewrite a module version.
+
+Every source-module release must update that repository's changelog before its
+metadata version changes. Record catalog-level changes in
+[CHANGELOG.md](CHANGELOG.md). Publish only after the relevant module checks
+and the Inspector integration checks pass. The initial release targets Linux
+x86_64 and Apple silicon macOS (`darwin-arm64`).
 
 Fork this repo, add your modules as submodules, push — and you have a
 working module repository that the Logos clients (`lgpd`, the
