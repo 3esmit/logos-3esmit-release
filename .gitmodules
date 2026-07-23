@@ -16,3 +16,15 @@
 ; After cloning a fork, materialise the submodule working trees with:
 ;
 ;   git submodule update --init --recursive
+[submodule "submodules/logos-blockchain-module"]
+	path = submodules/logos-blockchain-module
+	url = https://github.com/3esmit/logos-blockchain-module.git
+	branch = master
+[submodule "submodules/logos-storage-module"]
+	path = submodules/logos-storage-module
+	url = https://github.com/3esmit/logos-storage-module.git
+	branch = master
+[submodule "submodules/logos-delivery-module"]
+	path = submodules/logos-delivery-module
+	url = https://github.com/3esmit/logos-delivery-module.git
+	branch = master

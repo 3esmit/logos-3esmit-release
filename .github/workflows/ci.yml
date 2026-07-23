@@ -1,0 +1,39 @@
+name: Catalog validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Validate catalog metadata and release scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e '
+            .schemaVersion == 1
+            and (.name | type == "string" and length > 0)
+            and (.displayName | type == "string" and length > 0)
+            and (.indexUrl | type == "string" and startswith("https://"))
+            and (.trustedSigners | type == "array")
+          ' logos-repo.json >/dev/null
+          bash -n scripts/add-module.sh scripts/catalog.sh
+          paths="$(git config --file .gitmodules --get-regexp 'submodule\\..*\\.path$' | awk '{print $2}' | sort -u)"
+          test -n "$paths"
+          while IFS= read -r path; do
+            test -f "$path/metadata.json"
+            jq -e '
+              (.name | type == "string" and length > 0)
+              and (.version | type == "string" and length > 0)
+              and (.dependencies | type == "array")
+            ' "$path/metadata.json" >/dev/null
+          done <<< "$paths"

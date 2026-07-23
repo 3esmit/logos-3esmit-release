@@ -56,6 +56,12 @@ jobs:
     with:
       module_path: ${{ inputs.module_path }}
 
+      # Publish the two desktop targets supported by the Inspector release
+      # train: Linux x86_64 and Apple silicon macOS.  Keep Linux ARM out of
+      # this initial channel until each module has explicit runtime coverage
+      # there.
+      variants: linux-amd64,darwin-arm64
+
       # Normal runs skip a version that's already fully published; "Force
       # build" (force_build: true) republishes it by disabling that skip.
       skip_if_published: ${{ !inputs.force_build }}
