@@ -27,7 +27,7 @@ jobs:
             and (.trustedSigners | type == "array")
           ' logos-repo.json >/dev/null
           bash -n scripts/add-module.sh scripts/catalog.sh
-          paths="$(git config --file .gitmodules --get-regexp 'submodule\\..*\\.path$' | awk '{print $2}' | sort -u)"
+          paths="$(git config --file .gitmodules --get-regexp 'submodule\..*\.path$' | awk '{print $2}' | sort -u)"
           test -n "$paths"
           while IFS= read -r path; do
             test -f "$path/metadata.json"
