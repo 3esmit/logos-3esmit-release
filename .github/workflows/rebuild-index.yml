@@ -21,4 +21,4 @@ permissions:
 
 jobs:
   rebuild:
-    uses: logos-co/logos-modules-release-action/.github/workflows/rebuild-index.yml@v1
+    uses: 3esmit/logos-modules-release-action/.github/workflows/rebuild-index.yml@v1.0.1
