@@ -42,6 +42,40 @@
       ]
     },
     {
+      "name": "lez_wallet_ui",
+      "repository": "3esmit/logos-execution-zone-wallet-ui",
+      "version": "1.0.3",
+      "dependencies": [
+        "lez_core"
+      ],
+      "requiredVariants": [
+        "linux-amd64",
+        "darwin-arm64"
+      ]
+    },
+    {
+      "name": "accounts_module",
+      "repository": "3esmit/logos-accounts-module",
+      "version": "1.0.1",
+      "dependencies": [],
+      "requiredVariants": [
+        "linux-amd64",
+        "darwin-arm64"
+      ]
+    },
+    {
+      "name": "accounts_ui",
+      "repository": "3esmit/logos-accounts-ui",
+      "version": "1.0.1",
+      "dependencies": [
+        "accounts_module"
+      ],
+      "requiredVariants": [
+        "linux-amd64",
+        "darwin-arm64"
+      ]
+    },
+    {
       "name": "logos_inspector",
       "repository": "3esmit/logos-inspector",
       "version": "0.2.0-rc7",

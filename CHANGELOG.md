@@ -6,19 +6,11 @@
 - Replace catalog-owned module releases with an index of source-owned assets.
 - Require the complete Logos Inspector dependency closure on Linux x86_64 and
   Apple silicon macOS.
+- Add source-owned Accounts Core/UI and Execution Zone Wallet UI packages.
 
 All notable catalog changes are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and module versions
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## Unreleased
-
-### Added
-
-- Initial catalog definition for maintained blockchain, storage, and delivery
-  module forks.
-- Manual release workflows for Linux x86_64 and Apple silicon macOS portable
-  LGX packages.
 
 ## Release policy
 
