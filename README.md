@@ -25,6 +25,14 @@ logos_inspector_ui
     └── lez_core
 ```
 
+The same index also exposes the independently installable Accounts and
+Execution Zone Wallet applications:
+
+```text
+accounts_ui                 lez_wallet_ui
+└── accounts_module         └── lez_core
+```
+
 ## Source ownership
 
 [`sources.json`](sources.json) maps each package name to its only accepted

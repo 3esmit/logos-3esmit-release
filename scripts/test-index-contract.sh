@@ -8,6 +8,21 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 valid_index="$tmp_dir/index.json"
 
+jq -e '
+  [.packages[].name] | sort
+  == [
+    "accounts_module",
+    "accounts_ui",
+    "blockchain_module",
+    "delivery_module",
+    "lez_core",
+    "lez_wallet_ui",
+    "logos_inspector",
+    "logos_inspector_ui",
+    "storage_module"
+  ]
+' "$repo_root/sources.json" >/dev/null
+
 jq '
   {
     schemaVersion: 2,
