@@ -1,12 +1,4 @@
-name: Rebuild index
-
-# Regenerates the rolling `index` release (index.json — the catalog
-# clients fetch) whenever a per-module release fires the
-# `rebuild-index` repository_dispatch event. Also runs on a six-hourly
-# schedule as a catch-up so a missed dispatch can't strand the catalog,
-# and can be kicked manually from the Actions UI.
-#
-# Thin passthrough to the versioned action — nothing to configure here.
+name: Rebuild source release index
 
 on:
   workflow_dispatch: {}
@@ -15,10 +7,77 @@ on:
   schedule:
     - cron: '17 */6 * * *'
 
-# Forked repos default to a read-only GITHUB_TOKEN.
 permissions:
   contents: write
 
+concurrency:
+  group: rebuild-source-index
+  cancel-in-progress: true
+
 jobs:
   rebuild:
-    uses: 3esmit/logos-modules-release-action/.github/workflows/rebuild-index.yml@v1.0.1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out catalog
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Validate source map
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./scripts/test-collect-source-urls.sh
+          ./scripts/test-index-contract.sh
+
+      - name: Collect source-owned package URLs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./scripts/collect-source-urls.sh sources.json urls.txt
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
+        with:
+          extra-conf: |
+            experimental-features = nix-command flakes
+
+      - name: Install lgx
+        shell: bash
+        run: |
+          set -euo pipefail
+          nix build github:logos-co/logos-package#lgx \
+            --out-link "$RUNNER_TEMP/lgx-tool"
+          echo "$RUNNER_TEMP/lgx-tool/bin" >>"$GITHUB_PATH"
+
+      - name: Check out canonical index builder
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          repository: logos-co/logos-modules-release-tool
+          ref: 1654d51c1b9c5185b249c64f75c03311368b6d8c
+          path: _index_tool
+
+      - name: Build and validate index
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 _index_tool/index.py build urls.txt -o index.json
+          ./scripts/validate-index.sh index.json sources.json
+          jq '{
+            schemaVersion,
+            repositoryName,
+            packages: [.packages[] | {
+              name,
+              versions: [.versions[].manifest.version]
+            }]
+          }' index.json
+
+      - name: Publish index only
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          tag_name: index
+          name: Source release index
+          body: >-
+            Index of packages published by their source repositories.
+            This catalog does not build or rehost package assets.
+          files: index.json

@@ -12,10 +12,8 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Validate catalog metadata and release scripts
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Validate index-only catalog contract
         shell: bash
         run: |
           set -euo pipefail
@@ -26,14 +24,25 @@ jobs:
             and (.indexUrl | type == "string" and startswith("https://"))
             and (.trustedSigners | type == "array")
           ' logos-repo.json >/dev/null
-          bash -n scripts/add-module.sh scripts/catalog.sh
-          paths="$(git config --file .gitmodules --get-regexp 'submodule\..*\.path$' | awk '{print $2}' | sort -u)"
-          test -n "$paths"
-          while IFS= read -r path; do
-            test -f "$path/metadata.json"
-            jq -e '
-              (.name | type == "string" and length > 0)
+          jq -e '
+            .schemaVersion == 1
+            and (.packages | type == "array" and length == 6)
+            and ((.packages | map(.name) | unique | length) == 6)
+            and all(.packages[];
+              (.repository | startswith("3esmit/"))
               and (.version | type == "string" and length > 0)
               and (.dependencies | type == "array")
-            ' "$path/metadata.json" >/dev/null
-          done <<< "$paths"
+              and (.requiredVariants
+                   | sort == ["darwin-arm64", "linux-amd64"])
+            )
+          ' sources.json >/dev/null
+          bash -n scripts/*.sh
+          ./scripts/test-collect-source-urls.sh
+          ./scripts/test-index-contract.sh
+          test ! -e .gitmodules
+          test -z "$(find . -type f -name '*.lgx' -print -quit)"
+          test -z "$(
+            find .github/workflows -maxdepth 1 -type f \
+              \( -name 'release-*' -o -name '_release-module.yml' \) \
+              -print -quit
+          )"

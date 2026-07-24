@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Move every package build and release asset to its source repository.
+- Replace catalog-owned module releases with an index of source-owned assets.
+- Require the complete Logos Inspector dependency closure on Linux x86_64 and
+  Apple silicon macOS.
+
 All notable catalog changes are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and module versions
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
