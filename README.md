@@ -1,201 +1,74 @@
-# Logos 3esmit Release Catalog
+# Logos Inspector Package Catalog
 
-Release catalog for the maintained Logos modules used with Logos Inspector.
+Package index for the maintained Logos Inspector release set.
 
-It publishes these source forks:
+Each program owns its build, tags, changelog, checksums, sidecar metadata, and
+GitHub Release assets in its source repository. This repository does not build,
+copy, or rehost `.lgx` files. It publishes only the rolling `index.json` used by
+Logos package clients.
 
-- `blockchain_module` from `3esmit/logos-blockchain-module`
-- `storage_module` from `3esmit/logos-storage-module`
-- `delivery_module` from `3esmit/logos-delivery-module`
+Add this repository URL to Basecamp or another Logos package client:
 
-These are the direct-host protocol modules used by Logos Inspector. Install
-the Inspector core and UI packages together; once its package dependencies are
-available, the package manager can resolve them from this catalog.
-
-Add this catalog to a Logos client with:
-
-```
+```text
 https://raw.githubusercontent.com/3esmit/logos-3esmit-release/main/logos-repo.json
 ```
 
-This repository derives from the Logos module release template. The remaining
-sections document the release workflow and catalog maintenance.
+The catalog exposes `Logos Inspector` through `logos_inspector_ui`. Its
+dependency closure is restricted to packages from maintained source forks:
 
-## Release channel and changelog
-
-The catalog is currently **alpha**. Its module artifacts retain the semantic
-versions declared by their source repositories; the channel describes the
-catalog's integration maturity, not a reason to rewrite a module version.
-
-Every source-module release must update that repository's changelog before its
-metadata version changes. Record catalog-level changes in
-[CHANGELOG.md](CHANGELOG.md). Publish only after the relevant module checks
-and the Inspector integration checks pass. The initial release targets Linux
-x86_64 and Apple silicon macOS (`darwin-arm64`).
-
-Fork this repo, add your modules as submodules, push — and you have a
-working module repository that the Logos clients (`lgpd`, the
-`package_downloader` module, the package-manager UI) can install from.
-
-This catalog uses the versioned, maintained
-[`3esmit/logos-modules-release-action`](https://github.com/3esmit/logos-modules-release-action)
-at an immutable patch tag. This repo only holds *your* submodules, *your*
-catalog metadata, and a thin layer of workflows that call the action.
-
-## Quick start
-
-1. **Fork** this repo (GitHub → *Use this template* / *Fork*).
-
-2. **Edit `logos-repo.json`** — this is how clients identify your
-   catalog. Replace every `CHANGE-ME` and set `indexUrl` to point at
-   *your* fork:
-
-   ```json
-   {
-     "schemaVersion": 1,
-     "name": "my-modules",
-     "displayName": "My Modules",
-     "description": "My personal Logos modules.",
-     "homepage": "https://example.com",
-     "indexUrl": "https://github.com/<your-owner>/<your-repo>/releases/download/index/index.json",
-     "trustedSigners": []
-   }
-   ```
-
-3. **Add your modules**:
-
-   ```bash
-   git clone https://github.com/<your-owner>/<your-repo>
-   cd <your-repo>
-   ./scripts/add-module.sh https://github.com/<you>/<your-module-repo>
-   git add -A && git commit -m "Add <your-module-repo>" && git push
-   ```
-
-   `add-module.sh` registers the submodule **and** generates its
-   per-module release workflow. Repeat for each module.
-
-4. **Publish.** From the repo's **Actions** tab, run **Release all
-   modules** (or an individual **Release \<module\>**) — or, from a
-   terminal, `./scripts/catalog.sh release-all`. The action builds each
-   `.lgx`, verifies it, optionally signs it, cuts a `<module>-v<version>`
-   GitHub release, and rolls everything up into the `index` release that
-   clients read.
-
-5. **Point a client at it.** Add your fork's `logos-repo.json` raw URL
-   as a repository in the package-manager UI / `lgpd`:
-
-   ```
-   https://raw.githubusercontent.com/<your-owner>/<your-repo>/<default-branch>/logos-repo.json
-   ```
-
-That's it. Bumping a submodule pointer (which moves its
-`metadata.json#version`) and re-running its workflow publishes a new
-version; clients pick it up on their next catalog refresh.
-
-## Layout
-
-```
-.
-├── logos-repo.json                       # YOUR catalog metadata — edit this
-├── .gitmodules                           # submodule declarations (starts empty)
-├── submodules/                           # one git submodule per module (you add these)
-├── scripts/
-│   ├── add-module.sh                     # add a submodule + generate its workflow
-│   └── catalog.sh                        # run the catalog workflows via `gh` (no Actions tab)
-└── .github/workflows/
-    ├── _release-module.yml               # signing config — the ONE place to edit it
-    ├── release-module.yml.template       # per-module workflow template (don't run; it's a template)
-    ├── release-all.yml                   # umbrella; discovers modules from .gitmodules
-    ├── rebuild-index.yml                 # rebuilds index.json after each release
-    └── unpublish.yml                     # manually remove a module / version from the catalog
+```text
+logos_inspector_ui
+└── logos_inspector
+    ├── blockchain_module
+    ├── storage_module
+    ├── delivery_module
+    └── lez_core
 ```
 
-### Workflow architecture
+## Source ownership
 
-Two-tier reusable workflows so the signing pipeline lives in exactly
-one place:
+[`sources.json`](sources.json) maps each package name to its only accepted
+source repository, current release version, and exact package dependencies.
+Every indexed release must provide:
 
-- **`_release-module.yml`** — local *private* reusable workflow
-  (`workflow_call` only, so it never shows up as runnable in the
-  Actions UI). Calls
-  `3esmit/logos-modules-release-action/.github/workflows/release.yml@v1.0.1`
-  with this catalog's signing configuration.
-- **`release-<module>.yml`** — one per module, generated by
-  `add-module.sh`. Each just passes `module_path: submodules/<repo>` to
-  `_release-module.yml`. Lets you cut a single module from the Actions
-  UI.
-- **`release-all.yml`** — umbrella. **Discovers** the module list from
-  `.gitmodules` at run time (no hand-maintained matrix) and fans out to
-  `_release-module.yml` per module in parallel.
-- **`rebuild-index.yml`** — thin passthrough to the action's
-  index-rebuilder. Auto-triggered after each release; also runs on a
-  6-hourly catch-up schedule.
-- **`unpublish.yml`** — manual (Actions tab). Removes a whole module
-  or one specific version: deletes the release(s) + optionally their
-  tags, then rebuilds the index. **Run with `dry_run: true` first** —
-  deletion is irreversible. Re-running a release for an unchanged
-  submodule is a fast no-op (the action skips builds whose
-  `<module>-v<version>` is already published).
+- one source-owned `.lgx` GitHub Release asset;
+- `sidecar.json` in the same source release;
+- `linux-amd64` and `darwin-arm64` variants;
+- manifest dependencies matching `sources.json`;
+- asset URLs under the mapped source repository.
 
-Both **Release \<module\>** and **Release all modules** take a **Force
-build** toggle on the *Run workflow* form (off by default). Leave it off
-for the normal skip-if-already-published behaviour; turn it on to rebuild
-and **replace** the current release when the version is unchanged — handy
-after a half-published release or a build-pipeline fix. From the terminal
-it's `./scripts/catalog.sh release <module> --force` (or `release-all
---force`).
+An upstream or same-name package from another repository fails validation.
 
-Every workflow declares `permissions: contents: write` because a
-forked repo's default `GITHUB_TOKEN` is read-only, and the release job
-must create releases / upload assets.
+## Rebuild the index
 
-To change signing for the whole catalog, edit **`_release-module.yml`
-only** — the per-module callers and the umbrella never need touching.
-
-## Signing
-
-Ships **unsigned** (`signing_mode: none`) so a fresh fork works
-immediately. When you're ready to sign, follow the inline instructions
-at the top of
-[`.github/workflows/_release-module.yml`](.github/workflows/_release-module.yml):
-
-| Mode | What runs | Where the key lives |
-|---|---|---|
-| `none` (default) | nothing | n/a — unsigned releases |
-| `inline` | `lgx sign` in CI | `LOGOS_SIGNING_KEY` Actions secret (Ed25519 JWK) |
-| `external` | your `signing_command` | anywhere (Jenkins / HSM / hardware token) |
-
-For `inline`, also put the matching public DID under `trustedSigners`
-in `logos-repo.json` so clients trust your signature.
-
-## Action version
-
-The workflows pin the maintained action to `@v1.0.1`, an immutable patch
-tag. Update that pin deliberately after validating the newer action; a
-bump to `@v2` signals a breaking change to its workflow inputs or index
-schema.
-
-## Managing `index.json` without GitHub Actions
-
-If you'd rather host `.lgx` files yourself (S3, your own server, a
-file share — anywhere `lgpd` can `GET` from) and not rely on this
-repo's GitHub-Actions index builder,
-[`logos-co/logos-modules-release-tool`](https://github.com/logos-co/logos-modules-release-tool)
-ships a single-file CLI (`index.py`) that builds, edits and validates
-an `index.json` from a plain list of `.lgx` URLs (or local files for
-packages you've just uploaded yourself). The output is byte-compatible
-with what `rebuild-index.yml` here produces, so clients consume it
-identically.
-
-The GitHub Actions path in this repo stays the default — the tool is
-for catalog maintainers who want a fully non-GitHub setup, or who want
-local control over partial / incremental index edits.
-
-## Notes for cloning a fork
-
-`.gitmodules` is committed but submodule working trees are not — after
-cloning your fork, run:
+Run the **Rebuild source release index** workflow, or:
 
 ```bash
-git submodule update --init --recursive
+./scripts/catalog.sh rebuild
 ```
+
+The workflow:
+
+1. collects `.lgx` URLs from mapped source repositories;
+2. rejects source releases without sidecar metadata;
+3. builds `index.json` with the canonical Logos release tool;
+4. validates ownership, variants, and complete Inspector dependency closure;
+5. replaces only `index.json` on this repository's rolling `index` release.
+
+It also runs every six hours to pick up new source releases.
+
+## Local validation
+
+```bash
+bash -n scripts/*.sh
+./scripts/test-collect-source-urls.sh
+./scripts/test-index-contract.sh
+```
+
+The contract tests reject cross-repository substitution, missing Apple silicon
+or Linux variants, and incomplete Inspector dependencies.
+
+## Release channel
+
+Current channel: **alpha**. Package versions remain owned by their source
+repositories. Catalog changes are recorded in [CHANGELOG.md](CHANGELOG.md).
