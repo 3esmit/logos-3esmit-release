@@ -26,8 +26,11 @@ jobs:
           ' logos-repo.json >/dev/null
           jq -e '
             .schemaVersion == 1
-            and (.packages | type == "array" and length == 6)
-            and ((.packages | map(.name) | unique | length) == 6)
+            and (.packages | type == "array" and length == 9)
+            and (
+              (.packages | map(.name) | unique | length)
+              == (.packages | length)
+            )
             and all(.packages[];
               (.repository | startswith("3esmit/"))
               and (.version | type == "string" and length > 0)
