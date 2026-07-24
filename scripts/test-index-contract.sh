@@ -30,6 +30,7 @@ jq '
     generatedAt: "2026-01-01T00:00:00Z",
     packages: [
       .packages[] as $source
+      | ($source.name | endswith("_ui")) as $is_ui
       | {
           name: $source.name,
           versions: [
@@ -52,19 +53,33 @@ jq '
               size: 1,
               sha256: ("a" * 64),
               rootHash: ("b" * 64),
-              manifest: {
-                name: $source.name,
-                version: $source.version,
-                dependencies: $source.dependencies,
-                hashes: {
-                  "variants/linux-amd64": "linux",
-                  "variants/darwin-arm64": "darwin"
-                },
-                main: {
-                  "linux-amd64": "module.so",
-                  "darwin-arm64": "module.dylib"
+              manifest: (
+                {
+                  name: $source.name,
+                  version: $source.version,
+                  type: (if $is_ui then "ui_qml" else "core" end),
+                  dependencies: $source.dependencies,
+                  hashes: {
+                    "variants/linux-amd64": "linux",
+                    "variants/darwin-arm64": "darwin"
+                  },
+                  main: (
+                    if $is_ui then
+                      {}
+                    else
+                      {
+                        "linux-amd64": "module.so",
+                        "darwin-arm64": "module.dylib"
+                      }
+                    end
+                  )
                 }
-              }
+                + if $is_ui then
+                    {view: "qml/Main.qml"}
+                  else
+                    {}
+                  end
+              )
             }
           ]
         }
@@ -74,6 +89,15 @@ jq '
 
 "$repo_root/scripts/validate-index.sh" \
   "$valid_index" "$repo_root/sources.json"
+
+jq -e '
+  .packages[]
+  | select(.name == "logos_inspector_ui")
+  | .versions[0].manifest
+  | .type == "ui_qml"
+    and .main == {}
+    and .view == "qml/Main.qml"
+' "$valid_index" >/dev/null
 
 jq '
   (.packages[] | select(.name == "logos_inspector") | .versions[0].url)
@@ -91,10 +115,36 @@ jq '
     | select(.name == "logos_inspector")
     | .versions[0].manifest.main["darwin-arm64"]
   )
-' "$valid_index" >"$tmp_dir/missing-variant.json"
+' "$valid_index" >"$tmp_dir/missing-native-main.json"
 if "$repo_root/scripts/validate-index.sh" \
-  "$tmp_dir/missing-variant.json" "$repo_root/sources.json"; then
-  echo "error: incomplete platform package was accepted" >&2
+  "$tmp_dir/missing-native-main.json" "$repo_root/sources.json"; then
+  echo "error: native package without a platform entry was accepted" >&2
+  exit 1
+fi
+
+jq '
+  del(
+    .packages[]
+    | select(.name == "logos_inspector_ui")
+    | .versions[0].manifest.view
+  )
+' "$valid_index" >"$tmp_dir/missing-ui-view.json"
+if "$repo_root/scripts/validate-index.sh" \
+  "$tmp_dir/missing-ui-view.json" "$repo_root/sources.json"; then
+  echo "error: QML-only package without a view was accepted" >&2
+  exit 1
+fi
+
+jq '
+  del(
+    .packages[]
+    | select(.name == "logos_inspector_ui")
+    | .versions[0].manifest.hashes["variants/darwin-arm64"]
+  )
+' "$valid_index" >"$tmp_dir/missing-ui-variant-hash.json"
+if "$repo_root/scripts/validate-index.sh" \
+  "$tmp_dir/missing-ui-variant-hash.json" "$repo_root/sources.json"; then
+  echo "error: QML-only package without a platform hash was accepted" >&2
   exit 1
 fi
 
