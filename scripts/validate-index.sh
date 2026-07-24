@@ -49,7 +49,17 @@ jq -e --slurpfile source_document "$sources_file" '
             and all($source.requiredVariants[];
               . as $variant
               | ($version.manifest.hashes | has("variants/\($variant)"))
-                and ($version.manifest.main | has($variant))
+            )
+            and (
+              if $version.manifest.type == "ui_qml" then
+                ($version.manifest.view
+                 | type == "string" and length > 0)
+              else
+                all($source.requiredVariants[];
+                  . as $variant
+                  | ($version.manifest.main | has($variant))
+                )
+              end
             )
         )
     )
