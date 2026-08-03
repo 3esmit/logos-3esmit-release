@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Refresh source-release versions for Blockchain, Storage, Delivery, Execution
+  Zone Core, and Logos Inspector Core/UI.
 - Move every package build and release asset to its source repository.
 - Replace catalog-owned module releases with an index of source-owned assets.
 - Require the complete Logos Inspector dependency closure on Linux x86_64 and
