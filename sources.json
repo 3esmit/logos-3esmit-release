@@ -4,7 +4,7 @@
     {
       "name": "blockchain_module",
       "repository": "3esmit/logos-blockchain-module",
-      "version": "0.2.5",
+      "version": "0.2.8",
       "dependencies": [],
       "requiredVariants": [
         "linux-amd64",
@@ -14,7 +14,7 @@
     {
       "name": "storage_module",
       "repository": "3esmit/logos-storage-module",
-      "version": "2.1.0",
+      "version": "2.3.0",
       "dependencies": [],
       "requiredVariants": [
         "linux-amd64",
@@ -24,7 +24,7 @@
     {
       "name": "delivery_module",
       "repository": "3esmit/logos-delivery-module",
-      "version": "0.1.5",
+      "version": "0.1.10",
       "dependencies": [],
       "requiredVariants": [
         "linux-amd64",
@@ -34,7 +34,7 @@
     {
       "name": "lez_core",
       "repository": "3esmit/logos-execution-zone-module",
-      "version": "0.3.1",
+      "version": "0.4.0-alpha.2",
       "dependencies": [],
       "requiredVariants": [
         "linux-amd64",
@@ -78,7 +78,7 @@
     {
       "name": "logos_inspector",
       "repository": "3esmit/logos-inspector",
-      "version": "0.2.0-rc7",
+      "version": "0.2.0-rc12",
       "dependencies": [
         "blockchain_module",
         "storage_module",
@@ -93,7 +93,7 @@
     {
       "name": "logos_inspector_ui",
       "repository": "3esmit/logos-inspector",
-      "version": "0.2.0-rc7",
+      "version": "0.2.0-rc12",
       "dependencies": [
         "logos_inspector"
       ],
