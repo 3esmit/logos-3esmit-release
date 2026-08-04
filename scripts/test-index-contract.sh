@@ -17,8 +17,12 @@ jq -e '
     "delivery_module",
     "lez_core",
     "lez_wallet_ui",
+    "logos_control_ui",
     "logos_inspector",
     "logos_inspector_ui",
+    "logos_palace_ui",
+    "palace_core",
+    "palace_vm",
     "storage_module"
   ]
 ' "$repo_root/sources.json" >/dev/null

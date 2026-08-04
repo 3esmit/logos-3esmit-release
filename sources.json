@@ -34,8 +34,22 @@
     {
       "name": "lez_core",
       "repository": "3esmit/logos-execution-zone-module",
-      "version": "0.4.0-alpha.2",
+      "version": "0.4.0-alpha.3",
       "dependencies": [],
+      "requiredVariants": [
+        "linux-amd64",
+        "darwin-arm64"
+      ]
+    },
+    {
+      "name": "logos_control_ui",
+      "repository": "3esmit/logos-control",
+      "version": "0.1.0",
+      "dependencies": [
+        "lez_core",
+        "delivery_module",
+        "storage_module"
+      ],
       "requiredVariants": [
         "linux-amd64",
         "darwin-arm64"
@@ -51,6 +65,40 @@
       "requiredVariants": [
         "linux-amd64",
         "darwin-arm64"
+      ]
+    },
+    {
+      "name": "palace_vm",
+      "repository": "3esmit/logos-palace",
+      "version": "0.1.0",
+      "dependencies": [],
+      "requiredVariants": [
+        "linux-amd64"
+      ]
+    },
+    {
+      "name": "palace_core",
+      "repository": "3esmit/logos-palace",
+      "version": "0.1.0",
+      "dependencies": [
+        "palace_vm",
+        "lez_core",
+        "delivery_module",
+        "storage_module"
+      ],
+      "requiredVariants": [
+        "linux-amd64"
+      ]
+    },
+    {
+      "name": "logos_palace_ui",
+      "repository": "3esmit/logos-palace",
+      "version": "0.1.0",
+      "dependencies": [
+        "palace_core"
+      ],
+      "requiredVariants": [
+        "linux-amd64"
       ]
     },
     {

@@ -1,6 +1,7 @@
-# Logos Inspector Package Catalog
+# 3esmit Logos Package Catalog
 
-Package index for the maintained Logos Inspector release set.
+Package index for maintained 3esmit Logos modules and applications, including
+Logos Inspector, Logos Control, and The Palace.
 
 Each program owns its build, tags, changelog, checksums, sidecar metadata, and
 GitHub Release assets in its source repository. This repository does not build,
@@ -33,6 +34,26 @@ accounts_ui                 lez_wallet_ui
 └── accounts_module         └── lez_core
 ```
 
+Logos Control and The Palace are also installable from this catalog:
+
+```text
+logos_control_ui
+├── delivery_module
+├── storage_module
+└── lez_core
+
+logos_palace_ui
+└── palace_core
+    ├── palace_vm
+    ├── delivery_module
+    ├── storage_module
+    └── lez_core
+```
+
+Palace and its dependencies currently publish Linux x86_64 artifacts. Logos
+Control, Delivery, Storage, and LEZ Core publish Linux x86_64 and Apple silicon
+macOS artifacts.
+
 ## Source ownership
 
 [`sources.json`](sources.json) maps each package name to its only accepted
@@ -41,7 +62,7 @@ Every indexed release must provide:
 
 - one source-owned `.lgx` GitHub Release asset;
 - `sidecar.json` in the same source release;
-- `linux-amd64` and `darwin-arm64` variants;
+- every variant listed by `requiredVariants` in [`sources.json`](sources.json);
 - manifest dependencies matching `sources.json`;
 - asset URLs under the mapped source repository.
 
@@ -60,7 +81,7 @@ The workflow:
 1. collects `.lgx` URLs from mapped source repositories;
 2. rejects source releases without sidecar metadata;
 3. builds `index.json` with the canonical Logos release tool;
-4. validates ownership, variants, and complete Inspector dependency closure;
+4. validates ownership, required variants, and complete dependency closures;
 5. replaces only `index.json` on this repository's rolling `index` release.
 
 It also runs every six hours to pick up new source releases.
