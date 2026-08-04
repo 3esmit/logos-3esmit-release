@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "name": "logos-3esmit-release",
   "displayName": "3esmit Logos Modules",
-  "description": "Index of source-owned Logos Inspector package releases.",
+  "description": "Index of source-owned 3esmit Logos module and application releases, including Logos Control and The Palace.",
   "homepage": "https://github.com/3esmit/logos-3esmit-release",
   "indexUrl": "https://github.com/3esmit/logos-3esmit-release/releases/download/index/index.json",
   "trustedSigners": []
