@@ -26,7 +26,7 @@ jobs:
           ' logos-repo.json >/dev/null
           jq -e '
             .schemaVersion == 1
-            and (.packages | type == "array" and length == 9)
+            and (.packages | type == "array" and length == 13)
             and (
               (.packages | map(.name) | unique | length)
               == (.packages | length)
@@ -36,7 +36,9 @@ jobs:
               and (.version | type == "string" and length > 0)
               and (.dependencies | type == "array")
               and (.requiredVariants
-                   | sort == ["darwin-arm64", "linux-amd64"])
+                   | type == "array"
+                   and length > 0
+                   and all(.[]; . == "linux-amd64" or . == "darwin-arm64"))
             )
           ' sources.json >/dev/null
           bash -n scripts/*.sh

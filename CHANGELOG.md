@@ -9,6 +9,9 @@
 - Require the complete Logos Inspector dependency closure on Linux x86_64 and
   Apple silicon macOS.
 - Add source-owned Accounts Core/UI and Execution Zone Wallet UI packages.
+- Add source-owned Logos Control UI and Palace VM/Core/UI packages.
+- Pin Palace's LEZ Core dependency to `0.4.0-alpha.3`, which exposes the local
+  public-block history API required by Palace Core.
 
 All notable catalog changes are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and module versions
