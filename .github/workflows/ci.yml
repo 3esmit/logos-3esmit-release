@@ -26,7 +26,7 @@ jobs:
           ' logos-repo.json >/dev/null
           jq -e '
             .schemaVersion == 1
-            and (.packages | type == "array" and length == 13)
+            and (.packages | type == "array" and length == 14)
             and (
               (.packages | map(.name) | unique | length)
               == (.packages | length)
