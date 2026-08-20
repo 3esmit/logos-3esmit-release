@@ -16,6 +16,7 @@ jq -e '
     "blockchain_module",
     "delivery_module",
     "lez_core",
+    "lez_indexer_module",
     "lez_wallet_ui",
     "logos_control_ui",
     "logos_inspector",
