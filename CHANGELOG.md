@@ -13,6 +13,7 @@
 - Pin Palace's LEZ Core dependency to `0.4.0-alpha.3`, which exposes the local
   public-block history API required by Palace Core.
 - Refresh Palace Core and UI to `0.2.0` after the productization release.
+- Publish `lez_indexer_module` `1.1.4` with the deployed Testnet indexer profile.
 
 All notable catalog changes are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and module versions
